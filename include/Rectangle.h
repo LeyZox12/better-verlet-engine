@@ -17,6 +17,7 @@ class Rectangle
         void setRect(Rect<int> rect);
         void setTexture(string path);
         void draw(RenderWindow& window);
+        void setColor(Color col);
         Texture* getTexture();
         bool getHasTexture();
         Rect<int> getRect();

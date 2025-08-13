@@ -28,6 +28,11 @@ void Rectangle::setRect(Rect<int> rect)
     sprite.setSize({rect.size.x, rect.size.y});
 }
 
+void Rectangle::setColor(Color col)
+{
+    sprite.setFillColor(col);
+}
+
 void Rectangle::draw(RenderWindow& window)
 {
     sprite.setTexture(&texture);

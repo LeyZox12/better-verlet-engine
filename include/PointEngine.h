@@ -28,6 +28,7 @@ class PointEngine
         PointEngine();
         int getPointIndexAtPos(vec2 point);
         Point& getPoint(int index);
+        Rectangle& getRect(int index);
         void addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction);
         void addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction, Color displayColor);
         void addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction, function<vector<any>(OnUpdateContext ctx)> onUpdate);

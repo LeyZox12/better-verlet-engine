@@ -23,7 +23,7 @@ void PointEngine::addPoint(vec2 pos, bool isStatic, bool shouldCollide, float ra
     points.emplace_back(instance);
 }
 
-void PointEngine::removePoint(int index)///
+void PointEngine::removePoint(int index)
 {
     if(index < points.size())
     {
@@ -35,7 +35,7 @@ void PointEngine::removePoint(int index)///
                 constraints[c].setIndexes(make_pair(constraints[c].getIndexes().first-1, constraints[c].getIndexes().second));
             if(constraints[c].getIndexes().second > index)
                 constraints[c].setIndexes(make_pair(constraints[c].getIndexes().first, constraints[c].getIndexes().second-1));
-            cout << "1:" << constraints[c].getIndexes().first << ", 2:"<< constraints[c].getIndexes().second << endl;
+            //cout << "1:" << constraints[c].getIndexes().first << ", 2:"<< constraints[c].getIndexes().second << endl;
         }removeConstraints(index);
         points.erase(points.begin() + index);
 
@@ -53,6 +53,11 @@ void PointEngine::removeConstraints(int index)
     sort(toRemove.begin(), toRemove.end(), greater<int>());
     for(auto& r : toRemove)
         constraints.erase(constraints.begin() + r);
+}
+
+Rectangle& PointEngine::getRect(int index)
+{
+    return rectangles[index];
 }
 
 void PointEngine::addRectangle(Rect<int> rect)
@@ -152,7 +157,6 @@ void PointEngine::updatePointPos(float dt, vec2 mousepos)
         index++;
     }
 }
-
 void PointEngine::applyConstraints(int substeps)
 {
     Point *p1, *p2;
@@ -321,6 +325,7 @@ void PointEngine::display(RenderWindow& window, Color color)
     }
     for(auto& r : rectangles)
     {
+        r.setColor(color);
         r.draw(window);
     }
 }
