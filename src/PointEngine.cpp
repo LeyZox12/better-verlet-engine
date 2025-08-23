@@ -157,7 +157,7 @@ void PointEngine::updatePointPos(float dt, vec2 mousepos)
         index++;
     }
 }
-void PointEngine::applyConstraints(int substeps)
+void PointEngine::applyConstraints(int substeps, float dt)
 {
     Point *p1, *p2;
     vec2 fixed1, fixed2, dir;
@@ -205,6 +205,12 @@ void PointEngine::applyConstraints(int substeps)
                     p1->setPos(fixed1, false);
                     p2->setPos(fixed2, false);
                     break;
+                case(3):
+                   fixed1 = p1->getPos() - dir * diff * 0.05f * dt;
+                    fixed2 = p2->getPos() + dir * diff * 0.05f * dt;
+                    p1->setPos(fixed1, false);
+                    p2->setPos(fixed2, false);
+                    break;
             }
         }
 }
@@ -238,8 +244,23 @@ void PointEngine::applyCollisions(int substeps)
                     float difference = rc - dist;
                     float ratio1 = r2 / r1;
                     float ratio2 = r1 / r2;
-                    vec2 fixed1 = p.getPos() - (rc - dist) * ratio1 * -dir;
-                    vec2 fixed2 = p2->getPos() - (rc - dist) * ratio2 * dir;
+                    vec2 fixed1, fixed2;
+                    if(ratio1 < ratio2)
+                    {
+                        fixed1 = p.getPos() - (rc - dist) * ratio1 * -dir;
+                        fixed2 = p2->getPos() - (rc - dist) * (1.f - ratio1) * dir;
+                    }
+                    else if(ratio2 < ratio1)
+                    {
+                        fixed1 = p.getPos() - (rc - dist) * (1.f - ratio2) * -dir;
+                        fixed2 = p2->getPos() - (rc - dist) * ratio2 * dir;
+                    }
+                    else
+                    {
+
+                        fixed1 = p.getPos() - (rc - dist) * 0.5f * -dir;
+                        fixed2 = p2->getPos() - (rc - dist) * 0.5f * dir;
+                    }
                     if(dist < rc)
                     {
                         p.setPos(fixed1, false);
@@ -299,15 +320,25 @@ int PointEngine::circleRectCollision(Rect<int> rect, CircleShape circle)
 
 void PointEngine::display(RenderWindow& window, Color color)
 {
-    CircleShape sprite;
+    const int VERTEX_CIRCLE = 10;
+    float ratio = (2 * PI)/VERTEX_CIRCLE;
+    VertexArray batch(PrimitiveType::Triangles, points.size() * VERTEX_CIRCLE * 3);
+    int pIndex = 0;
     for(auto& p : points)
     {
-        sprite.setFillColor(p.getColor());
-        sprite.setOrigin({p.getRadius(), p.getRadius()});
-        sprite.setRadius(p.getRadius());
-        sprite.setPosition(p.getPos());
-        window.draw(sprite);
+        for(int i = 0; i < VERTEX_CIRCLE; i++)
+        {
+            int index = pIndex * VERTEX_CIRCLE * 3 + i*3;
+            batch[index].position = p.getPos();
+            batch[index+1].position = p.getPos() + vec2(cos(ratio * index) * p.getRadius(), sin(ratio*index) * p.getRadius());
+            batch[index+2].position = p.getPos() + vec2(cos(ratio * (index+1)) * p.getRadius(), sin(ratio*(index+1)) * p.getRadius());
+            batch[index].color = color;
+            batch[index+1].color = color;
+            batch[index+2].color = color;
+        }
+        pIndex++;
     }
+    window.draw(batch);
     VertexArray line(PrimitiveType::LineStrip, 2);
 
     for(auto& c : constraints)

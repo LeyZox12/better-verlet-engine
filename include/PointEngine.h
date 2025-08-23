@@ -11,6 +11,7 @@
 #include "OnUpdateContext.hpp"
 #include "Rectangle.h"
 #include <chrono>
+#define PI 3.141592654
 
 #include <thread>
 
@@ -37,7 +38,7 @@ class PointEngine
         void addConstraint(int i1, int i2, int constraintType, float constraintDistance, bool isVisible);
         PhysicConstraint getConstraint(int index);
         void updatePointPos(float dt, vec2 mousepos);
-        void applyConstraints(int substeps);
+        void applyConstraints(int substeps, float dt);
         void applyCollisions(int substeps);
         void removeConstraint(int index);
         void removeConstraints(int index);
@@ -52,6 +53,7 @@ class PointEngine
         static const int DISTANCE_CONSTRAINT_MIN = 0;
         static const int DISTANCE_CONSTRAINT_MAX = 1;
         static const int DISTANCE_CONSTRAINT_MINMAX = 2;
+        static const int SPRING_CONSTRAINT_MINMAX = 3;
     protected:
 
     private:
