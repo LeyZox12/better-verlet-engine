@@ -1,4 +1,7 @@
 #include "../include/PhysicConstraint.h"
+#include "SFML/Graphics/Rect.hpp"
+#include <optional>
+#include <string>
 
 PhysicConstraint::PhysicConstraint()
 {
@@ -11,6 +14,17 @@ PhysicConstraint::PhysicConstraint(int i1, int i2, int type, float distance, boo
     this -> type = type;
     this -> distance = distance;
     this -> visible = visible;
+}
+
+PhysicConstraint::PhysicConstraint(int i1, int i2, int type, float distance, bool visible, std::string path, sf::Vector2f size)
+{
+    this->sprite = ConstraintSprite(path, size);
+    indexes = make_pair(i1, i2);
+    this -> type = type;
+    this -> distance = distance;
+    this -> visible = visible;
+
+
 }
 
 void PhysicConstraint::setIndex1(int index)
@@ -61,4 +75,9 @@ float PhysicConstraint::getDist()
 bool PhysicConstraint::getVisible()
 {
     return visible;
+}
+
+std::optional<ConstraintSprite>& PhysicConstraint::getSprite()
+{
+    return sprite;
 }

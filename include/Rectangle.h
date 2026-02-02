@@ -4,11 +4,12 @@
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <iostream>
+#include "PointEngineExport.hpp"
 
 using namespace std;
 using namespace sf;
 
-class Rectangle
+class POINTENGINE_API Rectangle
 {
     public:
         Rectangle();

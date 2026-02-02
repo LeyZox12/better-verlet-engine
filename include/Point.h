@@ -6,6 +6,7 @@
 #include <any>
 #include <functional>
 #include "OnUpdateContext.hpp"
+#include "PointEngineExport.hpp"
 
 class PointEngine;
 
@@ -16,7 +17,7 @@ typedef Vector2f vec2;
 
 class PointEngine;
 
-class Point
+class POINTENGINE_API Point
 {
     public:
         Point();
@@ -27,6 +28,7 @@ class Point
         void setAcc(vec2 acc);
         void addAcc(vec2 offset);
         void setShouldCollide(bool shouldCollide);
+        void setGravityScale(float scale);
         void setIsStatic(bool isStatic);
         void setOldPos(vec2 pos);
         void setRadius(float radius);
@@ -37,6 +39,7 @@ class Point
         vec2 getOldPos();
         float getRadius();
         float getFriction();
+        float getGravityScale();
         vec2 getAcc();
         bool getIsStatic();
         bool getShouldCollide();
@@ -53,6 +56,7 @@ class Point
         vec2 acc;
         float radius;
         float friction;
+        float gravityScale;
         Color displayColor;
 
 };

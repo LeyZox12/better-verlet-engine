@@ -2,6 +2,7 @@
 #define POINTENGINE_H
 
 #include <SFML/Graphics.hpp>
+#include "ThreadPool.h"
 #include "Point.h"
 #include "PhysicConstraint.h"
 #include <math.h>
@@ -10,7 +11,10 @@
 #include <functional>
 #include "OnUpdateContext.hpp"
 #include "Rectangle.h"
+#include "PointEngineExport.hpp"
 #include <chrono>
+#include <future>
+#include <thread>
 #define PI 3.141592654
 
 #include <thread>
@@ -23,23 +27,25 @@ class Point;
 
 class OnUpdateContext;
 
-class PointEngine
+class POINTENGINE_API PointEngine
 {
     public:
         PointEngine();
         int getPointIndexAtPos(vec2 point);
         Point& getPoint(int index);
         Rectangle& getRect(int index);
-        void addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction);
-        void addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction, Color displayColor);
-        void addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction, function<vector<any>(OnUpdateContext ctx)> onUpdate);
+        Point* addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction);
+        Point* addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction, Color displayColor);
+        Point* addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction, function<vector<any>(OnUpdateContext ctx)> onUpdate);
         void removePoint(int index);
         void addConstraint(int i1, int i2, int constraintType, float constraintDistance);
         void addConstraint(int i1, int i2, int constraintType, float constraintDistance, bool isVisible);
-        PhysicConstraint getConstraint(int index);
+        void addConstraint(int i1, int i2, int constraintType, float constraintDistance, bool isVisible, string texturePath, vec2 size);
+        PhysicConstraint& getConstraint(int index);
         void updatePointPos(float dt, vec2 mousepos);
         void applyConstraints(int substeps, float dt);
         void applyCollisions(int substeps);
+        void applyCollisionsPart(int substeps, int start, int end); 
         void removeConstraint(int index);
         void removeConstraints(int index);
         void addRectangle(Rect<int> rect);
@@ -49,17 +55,20 @@ class PointEngine
         int getConstraintCount();
         void display(RenderWindow& window, Color color);
         void displayAsRects(RenderWindow& window, Color color, float width);
+        void displayAsRects(RenderTexture& window, Color color, float width);
         static int circleRectCollision(Rect<int> rect, CircleShape circle);
         static const int DISTANCE_CONSTRAINT_MIN = 0;
         static const int DISTANCE_CONSTRAINT_MAX = 1;
         static const int DISTANCE_CONSTRAINT_MINMAX = 2;
         static const int SPRING_CONSTRAINT_MINMAX = 3;
+        const int THREADS = 10;
     protected:
 
     private:
         vector<Point> points;
         vector<PhysicConstraint> constraints;
         vector<Rectangle> rectangles;
+        ThreadPool threadPool;
 };
 
 #endif // POINTENGINE_H

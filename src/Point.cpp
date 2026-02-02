@@ -41,6 +41,11 @@ void Point::move(vec2 offset, bool overrideStatic)
     pos += offset;
 }
 
+void Point::setGravityScale(float scale)
+{
+    this->gravityScale = scale;
+}
+
 void Point::setAcc(vec2 acc)
 {
     this -> acc = acc;
@@ -104,6 +109,11 @@ float Point::getRadius()
 float Point::getFriction()
 {
     return friction;
+}
+
+float Point::getGravityScale()
+{
+    return gravityScale;
 }
 
 vec2 Point::getAcc()
