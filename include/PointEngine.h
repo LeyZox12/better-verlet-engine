@@ -37,7 +37,7 @@ class POINTENGINE_API PointEngine
         int getPointCount();
         int getConstraintCount();
         Point* addPoint(vec2 pos, bool isStatic, bool shouldCollide,
-                           float radius, float friction = 100.f, float mass = 50.f);
+                           float radius, float mass = 50.f);
         Point& getPoint(int index);
         Rectangle& getRect(int index);
         PhysicConstraint& getConstraint(int index);
@@ -51,8 +51,8 @@ class POINTENGINE_API PointEngine
         void applyCollisionsPart(int substeps, int start, int end); 
         void removeConstraint(int index);
         void removeConstraints(int index);
-        void addRectangle(Rect<int> rect);
-        void addRectangle(Rect<int> rect, string texturePath);
+        void addRectangle(Rect<int> rect, float friction = 425.f);
+        void addRectangle(Rect<int> rect, string texturePath, float friction);
         void removeRectangle(int index);
         void display(RenderWindow& window, Color color);
         void displayAsRects(RenderWindow& window, Color color, float width);

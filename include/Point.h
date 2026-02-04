@@ -7,6 +7,7 @@
 #include <functional>
 #include "OnUpdateContext.hpp"
 #include "PointEngineExport.hpp"
+#include "CollisionContext.hpp"
 
 class PointEngine;
 
@@ -21,8 +22,7 @@ class POINTENGINE_API Point
 {
     public:
         Point();
-        Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float friction, float mass = 50.f);
-        Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float friction, function<vector<any>(OnUpdateContext ctx)> onUpdate);
+        Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float mass = 50.f);
         void setPos(vec2 pos, bool overrideStatic);
         void move(vec2 offset, bool overrideStatic);
         void setAcc(vec2 acc);
@@ -33,13 +33,11 @@ class POINTENGINE_API Point
         void setOldPos(vec2 pos);
         void setRadius(float radius);
         void setColor(Color color);
-        void setFriction(float fricton);
         void setMass(float mass);
         Color getColor();
         vec2 getPos();
         vec2 getOldPos();
         float getRadius();
-        float getFriction();
         float getGravityScale();
         float getMass();
         vec2 getAcc();
@@ -47,9 +45,11 @@ class POINTENGINE_API Point
         bool getShouldCollide();
         int getIndex();
         void setIndex(int index);
+        void setCollisionCallback(std::function<void(CollisionContext ctx)>  func);
 
         vector<any> args;
-        function<vector<any>(OnUpdateContext ctx)> onUpdate;
+        function<void(OnUpdateContext ctx)> onUpdate;
+        function<void(CollisionContext ctx)> onCollision;
     protected:
 
     private:
@@ -60,7 +60,6 @@ class POINTENGINE_API Point
         vec2 oldPos;
         vec2 acc;
         float radius;
-        float friction = 100.f;
         float gravityScale = 1.f;
         float mass = 50.f;
         Color displayColor;

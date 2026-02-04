@@ -1,6 +1,8 @@
 #include "../include/PointEngine.h"
 #include <algorithm>
 #include <memory>
+#include <utility>
+#include "CollisionContext.hpp"
 
 PointEngine::PointEngine() : threadPool(ThreadPool(THREADS)) {
   // ctor
@@ -25,9 +27,9 @@ int PointEngine::getPointCount() { return points.size(); }
 
 int PointEngine::getConstraintCount() { return constraints.size(); }
 Point* PointEngine::addPoint(vec2 pos, bool isStatic, bool shouldCollide,
-                           float radius, float friction, float mass)
+                           float radius, float mass)
 {
-  points.emplace_back(Point(pos, radius, isStatic, shouldCollide, friction));
+  points.emplace_back(Point(pos, radius, isStatic, shouldCollide, mass));
   points[points.size()-1].setIndex(points.size()-1);
   return &points[points.size()-1];
 }
@@ -70,12 +72,12 @@ void PointEngine::removeConstraints(int index) {
 }
 
 
-void PointEngine::addRectangle(Rect<int> rect) {
-  rectangles.push_back(Rectangle(rect));
+void PointEngine::addRectangle(Rect<int> rect, float friction) {
+  rectangles.push_back(Rectangle(rect, friction));
 }
 
-void PointEngine::addRectangle(Rect<int> rect, string texturePath) {
-  rectangles.push_back(Rectangle(rect, texturePath));
+void PointEngine::addRectangle(Rect<int> rect, string texturePath, float friction) {
+  rectangles.push_back(Rectangle(rect, texturePath, friction));
 }
 
 void PointEngine::removeRectangle(int index) {
@@ -147,7 +149,7 @@ void PointEngine::updatePointPos(float dt, vec2 mousepos) {
     vec2 newPos = currPos * 2.0f - currOldPos + currAcc * dt * dt;
     p.setOldPos(currPos);
     p.setPos(newPos, false);
-    p.args = p.onUpdate(OnUpdateContext(*this, mousepos, p.args, index));
+    p.onUpdate(OnUpdateContext(*this, mousepos, p.args, index));
     index++;
   }
 }
@@ -175,8 +177,8 @@ void PointEngine::applyConstraints(int substeps, float dt) {
         staticRatio1 += 0.5;
       else 
       {
-        staticRatio1 = std::clamp(p1->getMass() / p2->getMass(), 0.f, 0.5f);
-        staticRatio2 = std::clamp(p2->getMass() / p1->getMass(), 0.f, 0.5f);
+        staticRatio2 = std::clamp(p1->getMass() / p2->getMass(), 0.f, 0.5f);
+        staticRatio1 = std::clamp(p2->getMass() / p1->getMass(), 0.f, 0.5f);
       }
 
 
@@ -184,8 +186,8 @@ void PointEngine::applyConstraints(int substeps, float dt) {
       case (0):
         if (dist > constraints[c].getDist())
           break;
-        fixed1 = p2->getPos() + dir * diff * -staticRatio1;
-        fixed2 = p1->getPos() - dir * diff * staticRatio2;
+        fixed1 = p1->getPos() - dir * diff * staticRatio1;
+        fixed2 = p2->getPos() + dir * diff * staticRatio2;
         p1->setPos(fixed1, false);
         p2->setPos(fixed2, false);
         break;
@@ -222,8 +224,11 @@ void PointEngine::applyCollisions(int substeps) {
         for (int j = 0; j < points.size(); j++) {
           Point &p = points[j];
           for (int i = 0; i < points.size(); i++)
-            if (p.getShouldCollide() ||
-                points[i].getShouldCollide() && i != j) {
+            if ((p.getShouldCollide() ||
+                points[i].getShouldCollide()) && i != j &&
+                count_if(constraints.begin(), constraints.end(),
+                 [i, j](auto& c)
+                 {return c.getIndexes() == std::make_pair(i, j) || c.getIndexes() == std::make_pair(j,i);}) == 0) {
               Point *p2 = &points[i];
               float r1 = p.getRadius();   // radius point 1
               float r2 = p2->getRadius(); // radius point 2
@@ -253,19 +258,21 @@ void PointEngine::applyCollisions(int substeps) {
                 }
               }
             }
-          sf::CircleShape sprite;
+          static sf::CircleShape sprite;
           sprite.setPosition(p.getPos());
           sprite.setOrigin({p.getRadius(), p.getRadius()});
           sprite.setRadius(p.getRadius());
           for (int r = 0; r < rectangles.size(); r++) {
             int collision =
                 circleRectCollision(rectangles[r].getRect(), sprite);
+            if(collision > NONE)
+              p.onCollision(CollisionContext(false, r));
             if (collision == UP) {
               p.setPos({p.getPos().x,
                         rectangles[r].getRect().position.y - p.getRadius()},
                        false);
               float vel = p.getOldPos().x - p.getPos().x;
-              p.setAcc({vel * p.getFriction(), 0});
+              p.setAcc({vel * rectangles[r].getFriction(), 0});
             } else if (collision == RIGHT) {
               p.setPos({rectangles[r].getRect().position.x +
                             rectangles[r].getRect().size.x + p.getRadius(),
@@ -298,8 +305,7 @@ int PointEngine::circleRectCollision(sf::Rect<int> rect, sf::CircleShape circle)
                              abs(bx + br - rx), abs(bx - br - (rx + sx))};
   int collisionIndex = distance(
       distances.begin(), min_element(distances.begin(), distances.end()));
-  if (distances[collisionIndex] < br && bx + br > rx && bx - br < rx + sx &&
-      by + br > ry && by - br < ry + sy)
+  if (bx+br > rx && by+br > ry && bx-br < rx + sx && by-br < ry + sy) 
     collision = collisionIndex + 1;
   return collision;
 }

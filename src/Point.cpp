@@ -1,33 +1,24 @@
 #include "../include/Point.h"
+#include "CollisionContext.hpp"
 
 Point::Point()
 {
 
 }
 
-Point::Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float friction, float mass)
+Point::Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float mass)
 {
     this -> pos = pos;
     this -> oldPos = pos;
     this -> radius = radius;
     this -> isStatic = isStatic;
     this -> shouldCollide = shouldCollide;
-    this -> friction = friction;
-    onUpdate = [](OnUpdateContext ctx) { return vector<any>();};
+    this -> mass = mass;
+    onUpdate = [](OnUpdateContext ctx) {};
+    onCollision = [](CollisionContext ctx){};
 
 }
 
-Point::Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float friction, function<vector<any>(OnUpdateContext ctx)> onUpdate)
-{
-    this -> pos = pos;
-    this -> oldPos = pos;
-    this -> radius = radius;
-    this -> isStatic = isStatic;
-    this -> shouldCollide = shouldCollide;
-    this -> friction = friction;
-    this -> onUpdate = onUpdate;
-    this -> index = index;
-}
 
 
 void Point::setPos(vec2 pos, bool overrideStatic)
@@ -68,11 +59,6 @@ void Point::setIsStatic(bool isStatic)
     this -> isStatic = isStatic;
 }
 
-void Point::setFriction(float friction)
-{
-    this -> friction = friction;
-}
-
 void Point::setOldPos(vec2 pos)
 {
     oldPos = pos;
@@ -106,11 +92,6 @@ vec2 Point::getOldPos()
 float Point::getRadius()
 {
     return radius;
-}
-
-float Point::getFriction()
-{
-    return friction;
 }
 
 float Point::getGravityScale()

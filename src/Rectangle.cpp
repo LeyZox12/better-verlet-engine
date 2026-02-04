@@ -5,17 +5,19 @@ Rectangle::Rectangle()
 
 }
 
-Rectangle::Rectangle(Rect<int> rect)
+Rectangle::Rectangle(Rect<int> rect, float friction)
 {
     this->rectangle = rect;
+    this->friction = friction;
     this->hasTexture = false;
     sprite.setPosition({rect.position.x, rect.position.y});
     sprite.setSize({rect.size.x, rect.size.y});
 }
 
-Rectangle::Rectangle(Rect<int> rect, string texturePath)
+Rectangle::Rectangle(Rect<int> rect, string texturePath, float friction)
 {
     this->rectangle = rect;
+    this->friction = friction;
     setTexture(texturePath);
     sprite.setPosition({rect.position.x, rect.position.y});
     sprite.setSize({rect.size.x, rect.size.y});
@@ -67,4 +69,9 @@ Texture* Rectangle::getTexture()
 Rect<int> Rectangle::getRect()
 {
     return rectangle;
+}
+
+float Rectangle::getFriction()
+{
+    return friction;
 }

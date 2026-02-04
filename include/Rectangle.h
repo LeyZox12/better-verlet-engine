@@ -13,8 +13,8 @@ class POINTENGINE_API Rectangle
 {
     public:
         Rectangle();
-        Rectangle(Rect<int> rect);
-        Rectangle(Rect<int> rect, string texturePath);
+        Rectangle(Rect<int> rect, float friction);
+        Rectangle(Rect<int> rect, string texturePath, float friction);
         void setRect(Rect<int> rect);
         void setTexture(string path);
         void draw(RenderWindow& window);
@@ -22,11 +22,13 @@ class POINTENGINE_API Rectangle
         Texture* getTexture();
         bool getHasTexture();
         Rect<int> getRect();
+        float getFriction();
     protected:
 
     private:
         Texture texture;
         bool hasTexture;
+        float friction = 425.f;
         Rect<int> rectangle;
         RectangleShape sprite;
 };
