@@ -17,7 +17,7 @@ SRC = $(wildcard src/*.cpp)
 OBJ = $(SRC:.cpp=.o)
 
 TARGET = PointEngine.dll
-IMPORT = libPointEngine.a
+IMPORT = lib/libPointEngine.a
 
 all: $(TARGET)
 

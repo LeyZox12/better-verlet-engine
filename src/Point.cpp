@@ -5,7 +5,7 @@ Point::Point()
 
 }
 
-Point::Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float friction)
+Point::Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float friction, float mass)
 {
     this -> pos = pos;
     this -> oldPos = pos;
@@ -14,6 +14,7 @@ Point::Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float fr
     this -> shouldCollide = shouldCollide;
     this -> friction = friction;
     onUpdate = [](OnUpdateContext ctx) { return vector<any>();};
+
 }
 
 Point::Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float friction, function<vector<any>(OnUpdateContext ctx)> onUpdate)
@@ -25,6 +26,7 @@ Point::Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float fr
     this -> shouldCollide = shouldCollide;
     this -> friction = friction;
     this -> onUpdate = onUpdate;
+    this -> index = index;
 }
 
 
@@ -116,6 +118,11 @@ float Point::getGravityScale()
     return gravityScale;
 }
 
+float Point::getMass()
+{
+    return mass;
+}
+
 vec2 Point::getAcc()
 {
     return acc;
@@ -129,4 +136,19 @@ bool Point::getIsStatic()
 bool Point::getShouldCollide()
 {
     return shouldCollide;
+}
+
+int Point::getIndex()
+{
+    return index;
+}
+
+void Point::setIndex(int index)
+{
+    this->index = index;
+}
+
+void Point::setMass(float mass)
+{
+    this->mass = mass;
 }

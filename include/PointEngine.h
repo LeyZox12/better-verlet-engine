@@ -14,6 +14,7 @@
 #include "PointEngineExport.hpp"
 #include <chrono>
 #include <future>
+#include <memory>
 #include <thread>
 #define PI 3.141592654
 
@@ -32,16 +33,18 @@ class POINTENGINE_API PointEngine
     public:
         PointEngine();
         int getPointIndexAtPos(vec2 point);
+        int getPointIndexFromPtr(Point* ptr);
+        int getPointCount();
+        int getConstraintCount();
+        Point* addPoint(vec2 pos, bool isStatic, bool shouldCollide,
+                           float radius, float friction = 100.f, float mass = 50.f);
         Point& getPoint(int index);
         Rectangle& getRect(int index);
-        Point* addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction);
-        Point* addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction, Color displayColor);
-        Point* addPoint(vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction, function<vector<any>(OnUpdateContext ctx)> onUpdate);
+        PhysicConstraint& getConstraint(int index);
         void removePoint(int index);
         void addConstraint(int i1, int i2, int constraintType, float constraintDistance);
         void addConstraint(int i1, int i2, int constraintType, float constraintDistance, bool isVisible);
         void addConstraint(int i1, int i2, int constraintType, float constraintDistance, bool isVisible, string texturePath, vec2 size);
-        PhysicConstraint& getConstraint(int index);
         void updatePointPos(float dt, vec2 mousepos);
         void applyConstraints(int substeps, float dt);
         void applyCollisions(int substeps);
@@ -51,8 +54,6 @@ class POINTENGINE_API PointEngine
         void addRectangle(Rect<int> rect);
         void addRectangle(Rect<int> rect, string texturePath);
         void removeRectangle(int index);
-        int getPointCount();
-        int getConstraintCount();
         void display(RenderWindow& window, Color color);
         void displayAsRects(RenderWindow& window, Color color, float width);
         void displayAsRects(RenderTexture& window, Color color, float width);

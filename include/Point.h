@@ -21,7 +21,7 @@ class POINTENGINE_API Point
 {
     public:
         Point();
-        Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float friction);
+        Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float friction, float mass = 50.f);
         Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float friction, function<vector<any>(OnUpdateContext ctx)> onUpdate);
         void setPos(vec2 pos, bool overrideStatic);
         void move(vec2 offset, bool overrideStatic);
@@ -34,29 +34,35 @@ class POINTENGINE_API Point
         void setRadius(float radius);
         void setColor(Color color);
         void setFriction(float fricton);
+        void setMass(float mass);
         Color getColor();
         vec2 getPos();
         vec2 getOldPos();
         float getRadius();
         float getFriction();
         float getGravityScale();
+        float getMass();
         vec2 getAcc();
         bool getIsStatic();
         bool getShouldCollide();
+        int getIndex();
+        void setIndex(int index);
 
         vector<any> args;
         function<vector<any>(OnUpdateContext ctx)> onUpdate;
     protected:
 
     private:
+        int index;
         bool isStatic;
         bool shouldCollide;
         vec2 pos;
         vec2 oldPos;
         vec2 acc;
         float radius;
-        float friction;
-        float gravityScale;
+        float friction = 100.f;
+        float gravityScale = 1.f;
+        float mass = 50.f;
         Color displayColor;
 
 };

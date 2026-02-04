@@ -1,32 +1,40 @@
 #include "../include/PointEngine.h"
+#include <algorithm>
+#include <memory>
 
 PointEngine::PointEngine() : threadPool(ThreadPool(THREADS)) {
   // ctor
 }
 
+int PointEngine::getPointIndexAtPos(vec2 point) {
+  for (int i = 0; i < points.size(); i++) {
+    vec2 diff = points[i].getPos() - point;
+    float dist = hypot(diff.x, diff.y);
+    if (dist < points[i].getRadius())
+      return i;
+  }
+  return -1;
+}
+
+int PointEngine::getPointIndexFromPtr(Point* ptr)
+{
+  return ptr - points.data();
+}
+
+int PointEngine::getPointCount() { return points.size(); }
+
+int PointEngine::getConstraintCount() { return constraints.size(); }
 Point* PointEngine::addPoint(vec2 pos, bool isStatic, bool shouldCollide,
-                           float radius, float friction) {
+                           float radius, float friction, float mass)
+{
   points.emplace_back(Point(pos, radius, isStatic, shouldCollide, friction));
-  points[points.size() - 1].setGravityScale(1.f);
+  points[points.size()-1].setIndex(points.size()-1);
   return &points[points.size()-1];
 }
 
-Point* PointEngine::addPoint(
-    vec2 pos, bool isStatic, bool shouldCollide, float radius, float friction,
-    function<vector<any>(OnUpdateContext ctx)> onUpdate) {
-  points.emplace_back(
-      Point(pos, radius, isStatic, shouldCollide, friction, onUpdate));
-  points[points.size() - 1].setGravityScale(1.f);
-  return &points[points.size()-1];
-}
+Point &PointEngine::getPoint(int index) { return points[index]; }
 
-Point* PointEngine::addPoint(vec2 pos, bool isStatic, bool shouldCollide,
-                           float radius, float friction, Color displayColor) {
-  Point instance = Point(pos, radius, isStatic, shouldCollide, friction);
-  instance.setColor(displayColor);
-  points.emplace_back(instance);
-  return &points[points.size()-1];
-}
+Rectangle &PointEngine::getRect(int index) { return rectangles[index]; }
 
 void PointEngine::removePoint(int index) {
   if (index < points.size()) {
@@ -61,7 +69,6 @@ void PointEngine::removeConstraints(int index) {
     constraints.erase(constraints.begin() + r);
 }
 
-Rectangle &PointEngine::getRect(int index) { return rectangles[index]; }
 
 void PointEngine::addRectangle(Rect<int> rect) {
   rectangles.push_back(Rectangle(rect));
@@ -127,21 +134,7 @@ PhysicConstraint& PointEngine::getConstraint(int index) {
   return constraints[index];
 }
 
-int PointEngine::getPointIndexAtPos(vec2 point) {
-  for (int i = 0; i < points.size(); i++) {
-    vec2 diff = points[i].getPos() - point;
-    float dist = hypot(diff.x, diff.y);
-    if (dist < points[i].getRadius())
-      return i;
-  }
-  return -1;
-}
 
-Point &PointEngine::getPoint(int index) { return points[index]; }
-
-int PointEngine::getPointCount() { return points.size(); }
-
-int PointEngine::getConstraintCount() { return constraints.size(); }
 
 void PointEngine::updatePointPos(float dt, vec2 mousepos) {
   int index = 0;
@@ -174,32 +167,41 @@ void PointEngine::applyConstraints(int substeps, float dt) {
       if (dist != 0)
         dir /= dist;
       diff = (dist - currConstraint.getDist());
-      float staticRatio = 0.5;
-      if (p1->getIsStatic() || p2->getIsStatic())
-        staticRatio += 0.5;
+      float staticRatio1 = 0.5;
+      float staticRatio2 = 0.5;
+      if (p1->getIsStatic())
+        staticRatio2 += 0.5;
+      else if(p2->getIsStatic())
+        staticRatio1 += 0.5;
+      else 
+      {
+        staticRatio1 = std::clamp(p1->getMass() / p2->getMass(), 0.f, 0.5f);
+        staticRatio2 = std::clamp(p2->getMass() / p1->getMass(), 0.f, 0.5f);
+      }
+
 
       switch (currConstraint.getType()) {
       case (0):
         if (dist > constraints[c].getDist())
           break;
-        fixed1 = p2->getPos() + dir * diff * -staticRatio;
-        fixed2 = p1->getPos() - dir * diff * staticRatio;
+        fixed1 = p2->getPos() + dir * diff * -staticRatio1;
+        fixed2 = p1->getPos() - dir * diff * staticRatio2;
         p1->setPos(fixed1, false);
         p2->setPos(fixed2, false);
         break;
       case (1):
         if (dist < constraints[c].getDist())
           break;
-        fixed1 = p2->getPos() + dir * diff * -staticRatio;
-        fixed2 = p1->getPos() - dir * diff * staticRatio;
+        fixed1 = p2->getPos() + dir * diff * -staticRatio1;
+        fixed2 = p1->getPos() - dir * diff * staticRatio2;
         p1->setPos(fixed1, false);
         p2->setPos(fixed2, false);
         break;
       case (2):
         if (dist == constraints[c].getDist())
           break;
-        fixed1 = p1->getPos() - dir * diff * staticRatio;
-        fixed2 = p2->getPos() + dir * diff * staticRatio;
+        fixed1 = p1->getPos() - dir * diff * staticRatio1;
+        fixed2 = p2->getPos() + dir * diff * staticRatio2;
         p1->setPos(fixed1, false);
         p2->setPos(fixed2, false);
         break;
