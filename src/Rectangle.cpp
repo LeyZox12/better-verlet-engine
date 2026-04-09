@@ -1,4 +1,5 @@
 #include "../include/Rectangle.h"
+#include "SFML/Graphics/RenderTarget.hpp"
 
 Rectangle::Rectangle()
 {
@@ -35,10 +36,10 @@ void Rectangle::setColor(Color col)
     sprite.setFillColor(col);
 }
 
-void Rectangle::draw(RenderWindow& window)
+void Rectangle::draw(sf::RenderTarget *window)
 {
     sprite.setTexture(&texture);
-    window.draw(sprite);
+    window->draw(sprite);
 }
 
 void Rectangle::setTexture(string path)

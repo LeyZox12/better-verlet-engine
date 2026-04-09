@@ -2,6 +2,7 @@
 #define POINT_H
 
 #include <SFML/Graphics.hpp>
+#include <unordered_set>
 #define pi 3.141595426
 #include <any>
 #include <functional>
@@ -45,11 +46,13 @@ class POINTENGINE_API Point
         bool getShouldCollide();
         int getIndex();
         void setIndex(int index);
-        void setCollisionCallback(std::function<void(CollisionContext ctx)>  func);
+        void setCollisionCallback(std::function<void(CollisionContext)> func);
+        sf::Vector2i gridPos(int cellSize);
 
+        unordered_set<int> links = {};
         vector<any> args;
-        function<void(OnUpdateContext ctx)> onUpdate;
-        function<void(CollisionContext ctx)> onCollision;
+        function<void(OnUpdateContext)> onUpdate;
+        function<void(CollisionContext)> onCollision;
     protected:
 
     private:

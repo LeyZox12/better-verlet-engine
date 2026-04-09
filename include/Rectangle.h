@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include "PointEngineExport.hpp"
+#include "SFML/Graphics/RenderTarget.hpp"
 
 using namespace std;
 using namespace sf;
@@ -17,7 +18,7 @@ class POINTENGINE_API Rectangle
         Rectangle(Rect<int> rect, string texturePath, float friction);
         void setRect(Rect<int> rect);
         void setTexture(string path);
-        void draw(RenderWindow& window);
+        void draw(RenderTarget* window);
         void setColor(Color col);
         Texture* getTexture();
         bool getHasTexture();

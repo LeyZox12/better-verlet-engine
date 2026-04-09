@@ -1,5 +1,6 @@
 #include "../include/Point.h"
 #include "CollisionContext.hpp"
+#include "SFML/System/Vector2.hpp"
 
 Point::Point()
 {
@@ -16,9 +17,7 @@ Point::Point(vec2 pos, float radius, bool isStatic, bool shouldCollide, float ma
     this -> mass = mass;
     onUpdate = [](OnUpdateContext ctx) {};
     onCollision = [](CollisionContext ctx){};
-
 }
-
 
 
 void Point::setPos(vec2 pos, bool overrideStatic)
@@ -30,7 +29,6 @@ void Point::setPos(vec2 pos, bool overrideStatic)
 void Point::move(vec2 offset, bool overrideStatic)
 {
     if(isStatic && !overrideStatic) return;
-    oldPos = pos;
     pos += offset;
 }
 
@@ -109,6 +107,11 @@ vec2 Point::getAcc()
     return acc;
 }
 
+sf::Vector2i Point::gridPos(int cellSize)
+{
+    return {(int)floor(pos.x/(float)cellSize), (int)floor(pos.y/(float)cellSize)};
+}
+
 bool Point::getIsStatic()
 {
     return isStatic;
@@ -123,6 +126,7 @@ int Point::getIndex()
 {
     return index;
 }
+
 
 void Point::setIndex(int index)
 {

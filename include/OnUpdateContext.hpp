@@ -9,8 +9,9 @@
 using namespace std;
 using namespace sf;
 
-class PointEngine;
 typedef Vector2f vec2;
+
+class PointEngine;
 
 struct POINTENGINE_API OnUpdateContext
 {
